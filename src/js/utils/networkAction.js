@@ -35,10 +35,11 @@ export class NetworkAction{
                     `${baseData.url}`;
                 let input; // 将向后台传输的编码后的数据
                 let headers = { // 请求数据时的header，很多情况下可写可不写
-                    'Access-Control-Allow-Origin': '*',
-                    "Access-Control-Allow-Credentials": "true",
-                    'Access-Control-Allow-Methods': 'GET,HEAD,OPTIONS,POST,PUT',
-                    'Access-Control-Allow-Headers': 'access-control-allow-origin, Origin,Accept, X-Requested-With, Content-Type, access-control-allow-methods, Access-Control-Request-Headers, access-control-allow-credentials',
+                    //'Access-Control-Allow-Origin': '*',
+                    // "Access-Control-Allow-Credentials": "true",
+                    // 'Access-Control-Allow-Methods': 'GET,HEAD,OPTIONS,POST,PUT',
+                    // 'Access-Control-Allow-Headers': 'x-requested-with, content-type, accept, origin, authorization, x-csrftoken, user-agent, accept-encoding',
+                    'Access-Token': "123456"
                 };
                 if(baseData.contentType) { // 如果外部传了contentType，则依据相应的规则进行编码
                     switch (baseData.contentType) {
@@ -65,20 +66,31 @@ export class NetworkAction{
                             break;
                     }  
                 } else {
-                    input = this.urlencodedParam(paramData);
+                    input = this.jsonParam(paramData);
+                    console.log("input: " + input);
+                    // input = this.urlencodedParam(paramData);
                     headers = Object.assign({}, headers, {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
                     });
                 }
                 
                 useBody || (url = this.appendQuery(url, input));
                 console.log(url, input);
+                // input = {"gcSource": "The smelt of fliwers bring back memories."}
+                //console.log("header Access-Token: " + headers['Access-Token']);
+                // console.log("header Content-Type: " + headers['Content-Type']);
+                // console.log("input :" + input);
                 //进行网络请求 fetch
                 let res = await fetch(url, {
                     method: method,
                     headers: headers,
-                    body: useBody ? input : null,
-                    credentials: 'include',
+                    body: input,
+                    // body: JSON.stringify(input),
+                    // body: JSON.stringify({
+                    //     "gcSource": "The smelt of fliwers bring back memories."
+                    // }),
+                    // body: useBody ? input : null,
+                    //credentials: 'include',
                     mode: 'cors'
                 })
                 // await得到fetch的结果，网络请求完成 
