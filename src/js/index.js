@@ -21,15 +21,47 @@ import AdvancedHome from "./components/pages/advancedUserHome"
 // });
 
 class Root extends React.Component{
+    constructor(props) {
+        super(props);
+        console.log("root")
+        this.token = sessionStorage.getItem('access_token');
+    }
+
+    requireAuth(nextState, replace) {
+        console.log("token: ", this.token);
+        if (sessionStorage.getItem('access_token') == null) {
+            console.log("not logged in.");
+            replace({
+                pathname: '/login',
+                state: { nextPathname: nextState.location.pathname }
+            })
+        }
+        // if (this.isGuest) {
+        //     console.log("guest")
+        //     replace({
+        //       pathname: '/login',
+        //       state: { nextPathname: nextState.location.pathname }
+        //     })
+        // }
+    }
+
+    handleUserIdChange(userId) {
+        console.log("nothing useful.");
+    }
 
     render() {
         return (
             <Router history={browserHistory}>
-                <Route path="/">
+                <Route path="/" >
                     <IndexRoute component={Login} />
-                    <Route path="home" component={Home} />
-                    <Route path="advanced-home" component={AdvancedHome} />
+                    {/*<IndexRoute component={() => <Login userStateOnChange={this.handleUserIdChange.bind(this)}/>}/>  
+                    <Route path="login" component={() => <Login userStateOnChange={this.handleUserIdChange.bind(this)}/>} />*/}
+                    <Route path="login" component={Login} />
+                    <Route path="home" component={Home} onEnter={this.requireAuth.bind(this)} />
+                    
                 </Route>
+
+                <Route path="advanced-home" component={AdvancedHome} />
             </Router>
         )
     }

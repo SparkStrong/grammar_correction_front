@@ -2,84 +2,92 @@ import React, {Component} from "react";
 import ReactDOM from "react-dom";
 import {browserHistory} from 'react-router'
 import './login.style.less'
-//import networkAction from "../utils/networkAction"
+import networkAction from "../../utils/networkAction"
 
 export default class Login extends Component {
     constructor(props) {  // 只有在constructor中可以直接为this.state分配值，其他情况要是用setState()方法更新state值，如this.setState({loginState:0})
         super(props);
-        this.userId = "",
         this.state = {
-            loginState: 0, // 0表示未登录，1表示用户名或密码错误，2表示该用户不存在
-            content: ["用户名或密码错误，请重新输入！","该用户不存在，请重新输入！"],
-            userNum: "",
+            loginState: 0, // 0表示未登录和正在输入登录信息，1表示用户名或密码错误，2表示该用户不存在, -1 服务器内部错误
+            content: ["用户名或密码错误，请重新输入！","该用户不存在，请重新输入！", "抱歉，服务器内部发生错误！"],
+            userName: "",
             password: "",
         }
     }
-    // componentWillMount() {
-    //     // 发送清除cookie的请求
-    //     const result = networkAction.promiseNetwork({"url": `TeachingResourceManagement/user/logout`, "method": 'POST'})
-    //     result.then((res) => {
-    //         console.log("logout-result:", res);
-    //         sessionStorage.clear();
-    //     })
-    // }
+
+    componentWillMount() {
+        // // 发送清除cookie的请求
+        // const result = networkAction.promiseNetwork({"url": `TeachingResourceManagement/user/logout`, "method": 'POST'})
+        // result.then((res) => {
+        //     console.log("logout-result:", res);
+        //     sessionStorage.clear();
+        // })
+        sessionStorage.clear();
+    }
+
     handleLogin(event) {
 
-        browserHistory.push('/home');
+        // browserHistory.push('/home');
 
-        // event.preventDefault();
-        // console.log("handleLogin")
-        // let userNum = document.getElementsByName("userNum")[0].value;
-        // let password = document.getElementsByName("password")[0].value;
-        // console.log("usrNum: ", userNum, "psw: ", password);
-        // const result = networkAction.promiseNetwork({"url": `TeachingResourceManagement/user/login`, "method": 'POST'},{"userNum": userNum, "password": password})
-        // result.then((res) => {
-        //     console.log("login-result:", res);
-        //     if(res.code == 0){
-        //         this.userId = res.data.userId;
-        //         console.log("this.userId:", this.userId);
-        //         this.props.userStateOnChange(this.userId);
-        //         sessionStorage.setItem('userId', this.userId);
-        //         browserHistory.push('/TeachingResourceManagement/home');
-        //     }else if(res.code == 1){
-        //         this.setState({loginState: 1});
-        //     }else{
-        //         this.setState({loginState: 2});
-        //     }
-        // })
-    }  
-    guestLogin() {
-        const result = networkAction.promiseNetwork({"url": `TeachingResourceManagement/user/guestLogin`, "method": 'POST'})
+        event.preventDefault();
+        console.log("handleLogin")
+        let userName = document.getElementsByName("userName")[0].value;
+        let password = document.getElementsByName("password")[0].value;
+        console.log("userName: ", userName, "psw: ", password);
+        let url = "api/login/";
+        let requestData = {"user_name": userName, "password": password};
+        const result = networkAction.promiseNetwork({"url": url, "method": 'POST'}, requestData);
+        
         result.then((res) => {
-            console.log("guest-login-result:", res);
-            if(res.code == 0){
-                // this.userId = res.data.userId;
-                console.log("this.userId:", this.userId);
-                this.props.userStateOnChange('guest');
-                sessionStorage.setItem('userId', 'guest');
-                browserHistory.push('/TeachingResourceManagement/home');
-            }else if(res.code == 1){
-                this.setState({loginState: 1});
-            }else{
-                this.setState({loginState: 2});
+            console.log("login-result:", res);
+            if(res.code == 0) {
+                console.log("success to login!");
+                browserHistory.push('/home');
+            } else if (res.code == -1) {
+                this.setState({loginState: 3});
+            } else {
+                this.setState({loginState: res.code});
             }
         })
+    }  
+    // guestLogin() {
+    //     const result = networkAction.promiseNetwork({"url": `TeachingResourceManagement/user/guestLogin`, "method": 'POST'})
+    //     result.then((res) => {
+    //         console.log("guest-login-result:", res);
+    //         if(res.code == 0){
+    //             // this.userId = res.data.userId;
+    //             console.log("this.userId:", this.userId);
+    //             this.props.userStateOnChange('guest');
+    //             sessionStorage.setItem('userId', 'guest');
+    //             browserHistory.push('/TeachingResourceManagement/home');
+    //         }else if(res.code == 1){
+    //             this.setState({loginState: 1});
+    //         }else{
+    //             this.setState({loginState: 2});
+    //         }
+    //     })
+    // }
+    renderWrong() {
+        if (this.state.loginState != 0) {
+            return this.state.content[this.state.loginState - 1];
+        } else {
+            return null;
+        }
+        // if(this.state.loginState == 1) {
+        //    return "用户名或密码错误，请重新输入！"
+        // } else return null;
     }
-    renderWrong(){
-        if(this.state.loginState == 1){
-           return "用户名或密码错误，请重新输入！"
-        }else return null;
-    }
-    userNumChange(event) {
+
+    userNameChange(event) {
         this.setState({
-            userNum: event.target.value,
-            loginState: 2
+            userName: event.target.value,
+            loginState: 0
         })
     }
     passwordChange(event) {
         this.setState({
             password: event.target.value,
-            loginState: 2
+            loginState: 0
         })
     }
 
@@ -93,9 +101,9 @@ export default class Login extends Component {
                                 <h3 className="form-sign-heading">欢迎登录英语语法纠错系统！</h3>
                             </div>
                             <div className="username">
-                                <input type="text" className="form-control" name="userNum" placeholder="账号"
-                                value={this.state.userNum} 
-                                onChange={this.userNumChange.bind(this)} 
+                                <input type="text" className="form-control" name="userName" placeholder="用户名"
+                                value={this.state.userName} 
+                                onChange={this.userNameChange.bind(this)} 
                                 required />
                             </div>
                             <div className="password">

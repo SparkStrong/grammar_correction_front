@@ -39,7 +39,7 @@ export class NetworkAction{
                     // "Access-Control-Allow-Credentials": "true",
                     // 'Access-Control-Allow-Methods': 'GET,HEAD,OPTIONS,POST,PUT',
                     // 'Access-Control-Allow-Headers': 'x-requested-with, content-type, accept, origin, authorization, x-csrftoken, user-agent, accept-encoding',
-                    'Access-Token': "123456"
+                    'Access-Token': sessionStorage.getItem('access_token') || ''
                 };
                 if(baseData.contentType) { // 如果外部传了contentType，则依据相应的规则进行编码
                     switch (baseData.contentType) {
@@ -77,7 +77,7 @@ export class NetworkAction{
                 useBody || (url = this.appendQuery(url, input));
                 console.log(url, input);
                 // input = {"gcSource": "The smelt of fliwers bring back memories."}
-                //console.log("header Access-Token: " + headers['Access-Token']);
+                console.log("header Access-Token: " + headers['Access-Token']);
                 // console.log("header Content-Type: " + headers['Content-Type']);
                 // console.log("input :" + input);
                 //进行网络请求 fetch
@@ -101,6 +101,12 @@ export class NetworkAction{
                 if(res) {
                     // 把res的内容转为json数据
                     let data = await res.json();
+                    console.log("handle response!");
+                    const token = data.token;
+                    if (token) {
+                        console.log("token: ", token);
+                        sessionStorage.setItem('access_token', token);
+                    }
                     // 调用resolve，结束promise，并把数据返回
                     resolve(data);
                 } else {
