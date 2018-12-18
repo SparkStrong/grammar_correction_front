@@ -42,7 +42,13 @@ export default class Login extends Component {
             console.log("login-result:", res);
             if(res.code == 0) {
                 console.log("success to login!");
-                browserHistory.push('/home');
+                if (res.data.user_type == 1) {
+                    browserHistory.push('/advanced-home');
+                    console.log("teacher!");
+                } else {
+                    browserHistory.push('/home');
+                    console.log("student!");
+                }
             } else if (res.code == -1) {
                 this.setState({loginState: 3});
             } else {

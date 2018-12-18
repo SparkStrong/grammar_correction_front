@@ -58,10 +58,8 @@ class Root extends React.Component{
                     <Route path="login" component={() => <Login userStateOnChange={this.handleUserIdChange.bind(this)}/>} />*/}
                     <Route path="login" component={Login} />
                     <Route path="home" component={Home} onEnter={this.requireAuth.bind(this)} />
-                    
+                    <Route path="advanced-home" component={AdvancedHome} onEnter={this.requireAuth.bind(this)} />
                 </Route>
-
-                <Route path="advanced-home" component={AdvancedHome} />
             </Router>
         )
     }
