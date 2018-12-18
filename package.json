@@ -15,7 +15,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --inline --content-base . --history-api-fallback --port 8081",
+    "start": "webpack-dev-server --inline --content-base . --history-api-fallback --host 0.0.0.0 --port 8081",
     "build": "webpack -dw"
   },
   "devDependencies": {
